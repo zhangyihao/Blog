@@ -1,11 +1,11 @@
-#使用OpenSSL制作SSL证书#
+# 使用OpenSSL制作SSL证书#
 
 制作SSL证书前，需要先了解两个概念：证书（certificate）和证书请求（certificate sign rquest）
 > 1. 证书是自签名或CA签名过的凭据，用来进行身份认证。
 > 2. 证书请求是对签名的请求，需要使用私钥进行签名。
 
 
-##1. 生成CA证书 ##
+## 1. 生成CA证书 ##
 第一步，生成 CA 私钥：
 ```
 [root@py ssl_test]# openssl genrsa -out ca.key 1024
