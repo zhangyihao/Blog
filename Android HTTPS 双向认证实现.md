@@ -1,10 +1,21 @@
-# Android HTTPS 双向认证实现 #
+---
+title: Android HTTPS 双向认证实现
+tags:
+  - Android
+  - 双向认证
+categories:
+  - Android
+date: 2017-12-12 12:00:00
+comments: false
+
+---
 
 在做项目的过程中，碰到了App需要使用双向认证的问题，记录下解决方法。
 
 ## 什么是双向认证？ ##
 简单来说，在一次请求中，客户端需要校验服务端证书合法性，服务端同时校验客户端合法性。
 详细过程为：
+
 1. 客户端向服务端发送SSL协议版本号、加密算法种类、随机数等信息。
 2. 服务端给客户端返回SSL协议版本号、加密算法种类、随机数等信息，同时也返回服务器端的证书，即公钥证书
 3. 客户端使用服务端返回的信息验证服务器的合法性，包括：
@@ -58,6 +69,7 @@ http {
 
 ## Android端SSL认证 ##
 一般客户端验证SSL有两种方式：
+
 1. 通过SSLSocketFactory方式创建，需要设置域名及端口号(适应于HttpClient请求方式)。
 2. 通过SSLContext方式创建(适用于HttpsURLConnection请求方式).
 
@@ -66,6 +78,7 @@ http {
 最初，使用网络上客户端证书（client.bks）及客户端证书库(truststore.bks)方式创建SSLContext，一直报“Trust anchor for certification path not found.”的错，后来根据Android官网代码及客户端使用p12格式证书解决了问题。 具体可参考文章后边“遇到的坑”部分。
 
 详细代码为：
+
 ```java
 package com.zhangyida;
 
@@ -196,6 +209,7 @@ Java平台默认识别jks格式的证书文件，但是android平台只识别bks
 
 ### Trust anchor for certification path not found错误 ###
 具体报错信息为：
+
 ```
 javax.net.ssl.SSLHandshakeException: java.security.cert.CertPathValidatorException: Trust anchor for certification path not found.
         at org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl.startHandshake(OpenSSLSocketImpl.java:374)
@@ -224,7 +238,6 @@ keyStore.setCertificateEntry("ca", ca);
 //修改后代码：
 trustStore.setCertificateEntry("trust", cer);
 ```
-
 
 ## 参考文章 ##
 1. [Https单向认证和双向认证](http://blog.csdn.net/duanbokan/article/details/50847612 "Https单向认证和双向认证")

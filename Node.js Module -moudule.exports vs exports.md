@@ -7,6 +7,7 @@
 >It allows a shortcut, so that module.exports.f = ... can be written more succinctly as exports.f = .... However, be aware that like any variable, if a new value is assigned to exports, it is no longer bound to module.exports
 
 从上边我们可以得到以下几点信息：
+
   1. module.exports是由Module系统自动创建。
   2. **exports是module.exports的引用。**
   2. exports的作用域仅限所在文件内。
@@ -18,7 +19,8 @@
 #exports vs module.exports
 首先，我们先创建两个js文件：a.js和b.js，代码分别为：
 **a.js文件内容:**
-```
+
+```javascript
 function sayHello() {
 	console.log('hello!');
 }
@@ -30,7 +32,8 @@ console.log(exports);
 console.log(module.exports);
 ```
 **b.js文件内容:**
-```
+
+```javascript
 /*引用文件a*/
 var a = require('./a.js');
 ```
@@ -40,7 +43,8 @@ var a = require('./a.js');
 
 ###示例1：
 在a.js文件中添加代码，给exports赋值。
-```
+
+```javascript
 function sayHello() {
 	console.log('hello!');
 }
@@ -55,6 +59,7 @@ console.log(exports);
 console.log(module.exports);
 ```
 运行b.js，输出结果如下：
+
 ```
 E:\Projects\Test>node b.js
 相等？true
@@ -65,7 +70,8 @@ E:\Projects\Test>node b.js
 
 ###示例2：
 在a.js文件中添加代码，给module.exports的属性赋值。
-```
+
+```javascript
 function sayHello() {
 	console.log('hello!');
 }
@@ -79,6 +85,7 @@ console.log(exports);
 console.log(module.exports);
 ```
 运行b.js，输出结果如下：
+
 ```
 E:\Projects\Test>node b.js
 相等？true
@@ -89,7 +96,8 @@ E:\Projects\Test>node b.js
 
 ###示例3：
 在a.js文件中添加代码，给exports赋值。
-```
+
+```javascript
 function sayHello() {
 	console.log('hello!');
 }
@@ -104,6 +112,7 @@ console.log(exports);
 console.log(module.exports);
 ```
 运行b.js，输出结果如下：
+
 ```
 E:\Projects\Test>node b.js
 相等？false
@@ -115,7 +124,8 @@ E:\Projects\Test>node b.js
 在一开始，exports为文件内部的一个变量，和module.exports指向相同，都指向一个空对象{}。而在文件最后，将一个函数赋值给exports时，改变了exports的指向，此时exports指向了该函数，而没有修改module.exports的指向，导致最后两者不再指向相同内容。如果想让两者指向相同，应这样写：module.exports = exports = function say(){...}
 
 下面代码模拟一个文件被require时，node框架处理modul过程（摘自官网）：
-```
+
+```javascript
 function require(...) {
   var module = { exports: {} };
   ((module, exports) => {
@@ -136,7 +146,8 @@ function require(...) {
 
 ###示例4：
 在a.js文件中添加代码，给module.exports赋值。
-```
+
+```javascript
 function sayHello() {
 	console.log('hello!');
 }
@@ -153,6 +164,7 @@ console.log(exports);
 console.log(module.exports);
 ```
 运行b.js，输出结果如下：
+
 ```
 E:\Projects\Test>node b.js
 相等？false

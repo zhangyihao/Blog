@@ -4,6 +4,7 @@ Double-Checked Locking is widely cited and used as an efficient method for imple
 Unfortunately, it will not work reliably in a platform independent way when implemented in Java, without additional synchronization. When implemented in other languages, such as C++, it depends on the memory model of the processor, the reorderings performed by the compiler and the interaction between the compiler and the synchronization library. Since none of these are specified in a language such as C++, little can be said about the situations in which it will work. Explicit memory barriers can be used to make it work in C++, but these barriers are not available in Java.
 
 To first explain the desired behavior, consider the following code:
+
 ```java
 // Single threaded version
 class Foo { 
@@ -31,6 +32,7 @@ class Foo {
   }
 ```
 The code above performs synchronization every time *getHelper()* is called. The double-checked locking idiom tries to avoid synchronization after the helper is allocated:
+
 ```java
 // Broken multithreaded version
 // "Double-Checked Locking" idiom
@@ -75,6 +77,7 @@ When run on a system using the Symantec JIT, it doesn't work. In particular, the
 singletons[i].reference = new Singleton();
 ```
 to the following (note that the Symantec JIT using a handle-based object allocation system).
+
 ```
 0206106A   mov         eax,0F97E78h
 0206106F   call        01F6B210                  ; allocate space for
@@ -92,6 +95,7 @@ As you can see, the assignment to *singletons[i].reference* is performed before 
 
 ###A fix doesn't work
 given the explannation above, a number of people have suggested the fllowing code:
+
 ```java
 // (Still) Broken multithreaded version
 // "Double-Checked Locking" idiom
@@ -168,6 +172,7 @@ class Foo {
 }
 ```
 In fact, assuming that the computeHashCode function always returned the same result and had no side effects (i.e., idempotent), you could even get rid of all of the synchronization.
+
 ```java
 // Lazy initialization 32-bit primitives
 // Thread-safe if computeHashCode is idempotent
@@ -220,6 +225,7 @@ Singleton<TYPE, LOCK>::instance (void) {
 ##Fixing Double-Checked Locking using Thread Local Storage
 
 Alexander Terekhov (TEREKHOV@de.ibm.com) came up clever suggestion for implementing double checked locking using thread local storage. Each thread keeps a thread local flag to determine whether that thread has done the required synchronization.
+
 ```java
 class Foo {
 	 /** If perThreadInstance.get() returns a non-null value,
@@ -251,6 +257,7 @@ As of JDK5, there is a [new Java Memory Model and Thread specification.](http://
 JDK5 and later extends the semantics for volatile so that the system will not allow a write of a volatile to be reordered with respect to any previous read or write, and a read of a volatile cannot be reordered with respect to any following read or write. See [this entry in Jeremy Manson's blog for more details](http://jeremymanson.blogspot.com/2008/05/double-checked-locking.html).
 
 With this change, the Double-Checked Locking idiom can be made to work by declaring the helper field to be volatile. This does not work under JDK4 and earlier.
+
 ```java
 // Works with acquire/release semantics for volatile
 // Broken under current semantics for volatile

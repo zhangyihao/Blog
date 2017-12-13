@@ -7,6 +7,7 @@
 
 ## 1. 生成CA证书 ##
 第一步，生成 CA 私钥：
+
 ```
 [root@py ssl_test]# openssl genrsa -out ca.key 1024
 ```
@@ -67,6 +68,7 @@ An optional company name []:
 [root@py ssl_test]# openssl rsa -in server.key -pubout -out server.pem
 ```
 第二步，生成服务器端证书请求文件
+
 ```
 [root@py ssl_test]# openssl req -new -key server.key -out server.csr
 ```
@@ -74,6 +76,7 @@ An optional company name []:
 
 第三步，向CA机构申请证书
 在这一步，CA机构使用CA的证书和私钥，对请求的服务器请求证书进行签名，最后生成一个带有CA签名的证书。
+
 ```
 [root@py ssl_test]# openssl x509 -req -days 365 -CA ca.crt -CAkey ca.key -CAcreateserial -in server.csr -out server.crt
 ```
