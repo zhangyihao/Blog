@@ -57,7 +57,7 @@ An optional company name []:
 - *-signkey* 自签名证书需要的私钥文件。
 命令详细参数可参考维基百科：https://wiki.openssl.org/index.php/Command_Line_Utilities
 
-##2. 生成服务器端证书 ##
+## 2. 生成服务器端证书 ##
 第一步，生成服务器端公钥、私钥：
 
 ```
