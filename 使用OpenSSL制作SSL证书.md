@@ -1,4 +1,13 @@
-# 使用OpenSSL制作SSL证书#
+---
+title: 使用OpenSSL制作SSL证书
+date: 2017-12-13 21:57:17
+tags:
+	- SSL证书
+categories:
+  - 安全认证
+comments: false
+
+---
 
 制作SSL证书前，需要先了解两个概念：证书（certificate）和证书请求（certificate sign rquest）
 > 1. 证书是自签名或CA签名过的凭据，用来进行身份认证。
@@ -14,6 +23,8 @@
 - ca.key 为私钥文件名;
 - 1024为密钥长度，单位为bits，不写即为默认值为512。
 *openssl genrsa* 命令详细参数可参考维基百科：https://wiki.openssl.org/index.php/Manual:Genrsa(1)
+
+<!--more-->
 
 第二步，生成证书请求即 Certificate Signing Request (CSR)：
 

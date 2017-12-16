@@ -1,7 +1,19 @@
-#The "Double-Checked Locking is Broken" Declaration
+---
+title: (转)The Double-Checked Locking is Broken Declaration
+tags:
+	- double-checked Locking
+categories:
+  - JAVA
+date: 2017-02-16 11:50:00
+comments: false
+
+---
+
 Double-Checked Locking is widely cited and used as an efficient method for implementing lazy initialization in a multithreaded environment.
 
 Unfortunately, it will not work reliably in a platform independent way when implemented in Java, without additional synchronization. When implemented in other languages, such as C++, it depends on the memory model of the processor, the reorderings performed by the compiler and the interaction between the compiler and the synchronization library. Since none of these are specified in a language such as C++, little can be said about the situations in which it will work. Explicit memory barriers can be used to make it work in C++, but these barriers are not available in Java.
+
+<!--more-->
 
 To first explain the desired behavior, consider the following code:
 
@@ -51,13 +63,13 @@ class Foo {
 ```
 Unfortunately, that code just does not work in the presence of either optimizing compilers or shared memory multiprocessors.
 
-##It doesn't work
+## It doesn't work
 
 There are lots of reasons it doesn't work. The first couple of reasons we'll describe are more obvious. After understanding those, you may be tempted to try to devise a way to "fix" the double-checked locking idiom. Your fixes will not work: there are more subtle reasons why your fix won't work. Understand those reasons, come up with a better fix, and it still won't work, because there are even more subtle reasons.
 
 Lots of very smart people have spent lots of time looking at this. There is no way to make it work without requiring each thread that accesses the helper object to perform synchronization.
 
-###The first reason it doesn't work
+### The first reason it doesn't work
 
 The most obvious reason it doesn't work it that the writes that initialize the Helper object and the write to the helper field can be done or perceived out of order. Thus, a thread which invokes getHelper() could see a non-null reference to a helper object, but see the default values for fields of the helper object, rather than the values set in the constructor.
 
@@ -67,7 +79,7 @@ Even if the compiler does not reorder those writes, on a multiprocessor the proc
 
 Doug Lea has written a [more detailed description of compiler-based reorderings。](http://gee.cs.oswego.edu/dl/cpj/jmm.html "")
 
-###A test case showing that it doesn't work
+### A test case showing that it doesn't work
 
 Paul Jakubik found an example of a use of double-checked locking that did not work correctly. A slightly cleaned up version of that code is available here.
 
@@ -93,7 +105,7 @@ to the following (note that the Symantec JIT using a handle-based object allocat
 ```
 As you can see, the assignment to *singletons[i].reference* is performed before the constructor for Singleton is called. This is completely legal under the existing Java memory model, and also legal in C and C++ (since neither of them have a memory model).
 
-###A fix doesn't work
+### A fix doesn't work
 given the explannation above, a number of people have suggested the fllowing code:
 
 ```java
@@ -122,7 +134,7 @@ This code puts construction of the Helper object inside an inner synchorized blo
 
 Unfortunately, that intuition is absolutely wrong. The rules for synchronization don't work that way. The rule for a monitorexit (i.e., releasing synchronization) is that actions before the monitorexit must be performed before the monitor is released. However, there is no rule which says that actions after the monitorexit may not be done before the monitor is released. It is perfectly reasonable and legal for the compiler to move the assignment *helper = h;* inside the synchronized block, in which case we are back where we were previously. Many processors offer instructions that perform this kind of one-way memory barrier. Changing the semantics to require releasing a lock to be a full memory barrier would have performance penalties. 
 
-###More fixes that don't work
+### More fixes that don't work
 
 There is something you can do to force the writer to perform a full bidirectional memory barrier. This is gross, inefficient, and is almost guaranteed not to work once the Java Memory Model is revised. Do not use this. In the interests of science, [I've put a description of this technique on a separate page](http://www.cs.umd.edu/~pugh/java/memoryModel/BidirectionalMemoryBarrier.html). Do not use it.
 
@@ -134,13 +146,13 @@ Why? Because processors have their own locally cached copies of memory. On some 
 
 I've created [a separate web page](http://www.cs.umd.edu/~pugh/java/memoryModel/AlphaReordering.html) with a discussion of how this can actually happen on an Alpha processor.
 
-##Is it worth the trouble?
+## Is it worth the trouble?
 
 For most applications, the cost of simply making the *getHelper()* method synchronized is not high. You should only consider this kind of detailed optimizations if you know that it is causing a substantial overhead for an application.
 
 Very often, more high level cleverness, such as using the builtin mergesort rather than handling exchange sort (see the SPECJVM DB benchmark) will have much more impact.
 
-##Making it work for static singletons
+## Making it work for static singletons
 
 If the singleton you are creating is static (i.e., there will only be one *Helper* created), as opposed to a property of another object (e.g., there will be one *Helper* for each *Foo* object, there is a simple and elegant solution.
 
@@ -150,7 +162,7 @@ class HelperSingleton {
   static Helper singleton = new Helper();
 }
 ```
-##It will work for 32-bit primitive values
+## It will work for 32-bit primitive values
 
 Although the double-checked locking idiom cannot be used for references to objects, it can work for 32-bit primitive values (e.g., int's or float's). Note that it does not work for long's or double's, since unsynchronized reads/writes of 64-bit primitives are not guaranteed to be atomic.
 
@@ -189,7 +201,7 @@ class Foo {
   // other functions and members...
 }
 ```
-##Making it work with explicit memory barriers
+## Making it work with explicit memory barriers
 
 It is possible to make the double checked locking pattern work if you have explicit memory barrier instructions. For example, if you are programming in C++, you can use the code from Doug Schmidt et al.'s book:
 
@@ -222,7 +234,7 @@ Singleton<TYPE, LOCK>::instance (void) {
     return tmp;
 }
 ```
-##Fixing Double-Checked Locking using Thread Local Storage
+## Fixing Double-Checked Locking using Thread Local Storage
 
 Alexander Terekhov (TEREKHOV@de.ibm.com) came up clever suggestion for implementing double checked locking using thread local storage. Each thread keeps a thread local flag to determine whether that thread has done the required synchronization.
 
@@ -248,11 +260,11 @@ class Foo {
 ```
 The performance of this technique depends quite a bit on which JDK implementation you have. In Sun's 1.2 implementation, ThreadLocal's were very slow. They are significantly faster in 1.3, and are expected to be faster still in 1.4. [Doug Lea analyzed the performance of some techniques for implementing lazy initialization](http://www.cs.umd.edu/~pugh/java/memoryModel/DCL-performance.html).
 
-##Under the new Java Memory Model
+## Under the new Java Memory Model
 
 As of JDK5, there is a [new Java Memory Model and Thread specification.](http://www.cs.umd.edu/~pugh/java/memoryModel)
 
-###Fixing Double-Checked Locking using Volatile
+### Fixing Double-Checked Locking using Volatile
 
 JDK5 and later extends the semantics for volatile so that the system will not allow a write of a volatile to be reordered with respect to any previous read or write, and a read of a volatile cannot be reordered with respect to any following read or write. See [this entry in Jeremy Manson's blog for more details](http://jeremymanson.blogspot.com/2008/05/double-checked-locking.html).
 
@@ -274,7 +286,7 @@ With this change, the Double-Checked Locking idiom can be made to work by declar
         }
     }
 ```
-###Double-Checked Locking Immutable Objects
+### Double-Checked Locking Immutable Objects
 
 If Helper is an immutable object, such that all of the fields of Helper are final, then double-checked locking will work without having to use volatile fields. The idea is that a reference to an immutable object (such as a String or an Integer) should behave in much the same way as an int or float; reading and writing references to immutable objects are atomi
 
