@@ -16,6 +16,8 @@ comments: false
 
 我们可以通过查看系统版本方式检测，系统版本分为：test-keys（测试版）、release-keys（发布报）。在代码中可以通过***android.os.Build.TAGS***获取到当前系统的版本，如果不是*release-keys*，则有可能已经root过，存在风险。
 
+<!--more-->
+
 然而在实际情况下，有些手机厂商的系统发布出来系统未root，但系统版本就是test-keys的，所以是否使用这种方式需要斟酌。
 
 # 检测是否存在Superuser.apk #
