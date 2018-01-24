@@ -4,8 +4,10 @@ date: 2017-12-27 17:28:42
 tags:
   - 剑指offer
   - 算法
+  - 查询
 categories:
   - 算法
+  - 剑指offer
 comments: false
 
 ---
