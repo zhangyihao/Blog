@@ -1,5 +1,5 @@
 ---
-title: 剑指offer读书笔记-面试题10-二进制中1的个数
+title: 剑指offer面试题10-二进制中1的个数
 date: 2018-01-26 15:53:30 
 comments: false
 tags:

@@ -1,5 +1,5 @@
 ---
-title: 剑指offer读书笔记-面试题8-旋转数组的最小数字
+title: 剑指offer面试题8-旋转数组的最小数字
 date: 2018-01-25 10:47:15
 comments: false
 tags:
